@@ -18,15 +18,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x MotionSMS_Build/gradlew
+      - name: List files
+        run: find . -name "gradlew" 2>/dev/null && ls -la
+
+      - name: Grant execute permission
+        run: find . -name "gradlew" -exec chmod +x {} \;
 
       - name: Build Debug APK
-        run: cd MotionSMS_Build && ./gradlew assembleDebug --no-daemon
+        run: |
+          GRADLEW=$(find . -name "gradlew" | head -1)
+          DIR=$(dirname $GRADLEW)
+          cd $DIR && ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MotionSMS-Gateway-APK
-          path: MotionSMS_Build/app/build/outputs/apk/debug/app-debug.apk
+          path: "**/outputs/apk/debug/*.apk"
           retention-days: 30
